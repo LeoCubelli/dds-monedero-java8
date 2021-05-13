@@ -25,14 +25,6 @@ public class Cuenta {
     saldo = 0;
   }
 
-  public Cuenta(double montoInicial) {
-    saldo = montoInicial;
-  }
-
-  public void setMovimientos(List<Movimiento> movimientos) {
-    this.movimientos = movimientos;
-  }
-
   public double getDepositoMaximo() {
     return depositoMaximo;
   }
@@ -60,7 +52,7 @@ public class Cuenta {
     if (monto > limite) {
       throw new MaximoExtraccionDiarioException(getLimiteExtraccion(), limite);
     }
-    agregarMovimiento(LocalDate.now(), monto, true);
+    agregarMovimiento(LocalDate.now(), monto, false);
   }
 
   public void agregarMovimiento(LocalDate fecha, double monto, boolean esDeposito) {
