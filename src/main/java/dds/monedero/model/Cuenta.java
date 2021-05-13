@@ -13,6 +13,12 @@ public class Cuenta {
 
   private double saldo = 0;
   private List<Movimiento> movimientos = new ArrayList<>();
+  private double depositoMaximo = 3;
+  private double limiteExtraccion = 1000;
+
+  public double getLimiteExtraccion() {
+    return limiteExtraccion;
+  }
 
   public Cuenta() {
     saldo = 0;
@@ -26,13 +32,17 @@ public class Cuenta {
     this.movimientos = movimientos;
   }
 
+  public double getDepositoMaximo() {
+    return depositoMaximo;
+  }
+
   public void poner(double cuanto) {
     if (cuanto <= 0) {
-      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
+      throw new MontoNegativoException(cuanto);
     }
 
-    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= 3) {
-      throw new MaximaCantidadDepositosException("Ya excedio los " + 3 + " depositos diarios");
+    if (getMovimientos().stream().filter(movimiento -> movimiento.isDeposito()).count() >= getDepositoMaximo()) {
+      throw new MaximaCantidadDepositosException(getDepositoMaximo());
     }
 
     new Movimiento(LocalDate.now(), cuanto, true).agregateA(this);
@@ -40,16 +50,15 @@ public class Cuenta {
 
   public void sacar(double cuanto) {
     if (cuanto <= 0) {
-      throw new MontoNegativoException(cuanto + ": el monto a ingresar debe ser un valor positivo");
+      throw new MontoNegativoException(cuanto);
     }
     if (getSaldo() - cuanto < 0) {
-      throw new SaldoMenorException("No puede sacar mas de " + getSaldo() + " $");
+      throw new SaldoMenorException(getSaldo());
     }
     double montoExtraidoHoy = getMontoExtraidoA(LocalDate.now());
-    double limite = 1000 - montoExtraidoHoy;
+    double limite = getLimiteExtraccion() - montoExtraidoHoy;
     if (cuanto > limite) {
-      throw new MaximoExtraccionDiarioException("No puede extraer mas de $ " + 1000
-          + " diarios, límite: " + limite);
+      throw new MaximoExtraccionDiarioException(getLimiteExtraccion(), limite);
     }
     new Movimiento(LocalDate.now(), cuanto, false).agregateA(this);
   }
